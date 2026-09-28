@@ -1,5 +1,5 @@
 {
-  "name": "web3D-repo",
+  "name": "web3d-repo",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,6 +8,9 @@
   "private": true,
   "scripts": {
     "husky:init": "pnpm exec husky install",
+    "dev": "pnpm dev -F ai-explore-app",
+    "build": "pnpm build -F ai-explore-app",
+    "build:kit": "pnpm build -F three-kit",
     "lint:eslint:fix": "eslint . --fix",
     "lint:eslint": "eslint .",
     "commit": "git-cz",
@@ -44,24 +47,36 @@
     "@vitejs/plugin-vue-jsx": "^5.1.5",
     "@vitest/coverage-istanbul": "3.1.4",
     "@vitest/coverage-v8": "^4.1.9",
+    "autoprefixer": "^10.5.4",
     "commitizen": "^4.3.1",
     "cspell": "^8.19.4",
     "dotenv": "^17.4.2",
     "eslint": "^9.39.4",
+    "eslint-plugin-vue": "^10.9.2",
     "git-cz": "^4.9.0",
     "husky": "^9.1.7",
     "jsdom": "^29.1.1",
     "lint-staged": "^17.0.7",
     "picocolors": "^1.1.1",
+    "postcss": "^8.5.26",
     "qs": "^6.15.2",
     "rollup": "^4.61.1",
     "rollup-plugin-visualizer": "^6.0.11",
+    "tailwindcss": "3.4.17",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.1",
     "tsx": "^4.23.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.0",
+    "unplugin-auto-import": "^21.1.0",
+    "unplugin-vue-components": "^32.1.0",
     "vite": "^7.3.5",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.9",
+    "vue-eslint-parser": "^10.4.1"
+  },
+  "dependencies": {
+    "@common/request": "^1.0.4",
+    "@common/tools": "^1.0.1",
+    "bitecs": "0.3.36"
   }
 }

@@ -3,6 +3,7 @@ packages:
   - 'packages/*'
   - 'sharedType/*'
   - 'test/*'
+  - 'server/*'
   
   # exclude packages that are inside b directories
   #- '!**/A/**'
