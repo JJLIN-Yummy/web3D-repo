@@ -5,6 +5,7 @@ export default {
   ignores: [
     // '**/tailwind.css',
     "**/debug-tw.css",
+    "**/debug-tw.css",
     "**/build/**",
     "**/dist/**",
   ],
