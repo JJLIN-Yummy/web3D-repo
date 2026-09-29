@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "moduleResolution": "Bundler",
+    "types": ["node", "vitest/globals"],
+    "typeRoots": ["./node_modules/@types/", "./types"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "#/*": ["./types/*"],
+      "&/*": ["./public/*"]
+    },
+    "lib": ["WebWorker", "ESNext", "DOM"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "*.config.ts",
+    "types/**/*.d.ts", // types目录下所有类型声明文件
+    "types/**/*.ts", // types目录下所有TS文件,
+    "build/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

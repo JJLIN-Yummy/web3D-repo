@@ -1,0 +1,20 @@
+{
+  "name": "@web3d/ai-explore-app",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint:eslint": "eslint .",
+    "lint:eslint:fix": "eslint . --fix",
+    "cspell": "cspell lint **/*.{js,ts,tsx,vue} --no-must-find-files"
+  },
+  "dependencies": {
+    "pinia": "^4.0.3",
+    "reka-ui": "^2.10.4",
+    "three": "^0.185.1",
+    "vue": "^3.5.39"
+  },
+  "devDependencies": {
+    "@types/three": "^0.185.4"
+  }
+}
