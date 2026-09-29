@@ -9,6 +9,8 @@ export default [
       "./vite.config*.ts",
       "./test*.ts",
       "./build/**",
+      "**/*.config.js",
+      "**/*.config.ts",
     ],
   },
   ...es,
