@@ -12,6 +12,8 @@ export default [
       "**/build/**",
       "**/dist/**",
       "eslint.config.js",
+      "auto-imports.d.ts",
+      "components.d.ts",
     ],
   },
   ...es,
