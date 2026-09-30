@@ -19,7 +19,8 @@
     "changeset:v": "changeset version",
     "pub": "changeset publish",
     "stylelint": "stylelint \"packages/**/*.{css,vue}\"",
-    "stylelint:fix": "stylelint \"packages/**/*.{css,vue}\" --fix"
+    "stylelint:fix": "stylelint \"packages/**/*.{css,vue}\" --fix",
+    "build:ci-demo": "pnpm --filter ci-demo build"
   },
   "keywords": [],
   "author": "",
