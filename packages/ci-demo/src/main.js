@@ -4,7 +4,7 @@ import javascriptLogo from "./assets/javascript.svg";
 import viteLogo from "./assets/vite.svg";
 import { setupCounter } from "./counter.js";
 
-console.log("是盈盈呀");
+console.log("是日向晚呀 美哒哒捏");
 
 document.querySelector("#app").innerHTML = `
 <section id="center">
