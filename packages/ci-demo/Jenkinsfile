@@ -4,30 +4,35 @@ pipeline {
         nodejs 'node20'
     }
     stages {
-        stage('安装依赖打包') {
+        stage('构建') {
             steps {
                 sh '''
-                    curl -v http://127.0.0.1:4873
-                    export COREPACK_ENABLE_STRICT=0
-                    export COREPACK_ENABLE_AUTO_PIN=0
-                    export PNPM_FETCH_IGNORE_BUILDS=false
-                    corepack disable
-                    npm config set registry https://registry.npmmirror.com
-                    npm install -g pnpm
-                    pnpm config list
+                    set -e
+
+                    # 锁版本，不装 latest
+                    corepack enable
+                    corepack prepare pnpm@10.8.0 --activate
+
+                    # 限制 Node 内存，避免 OOM
+                    export NODE_OPTIONS=--max-old-space-size=2048
+
+                    # 只删 node_modules，保留 lockfile
                     rm -rf node_modules
-                    rm -rf pnpm-lock.yaml
-                    pnpm install --force
-                    pnpm run build:ci-demo
+
+                    # 用 lockfile 装，可复现，内存低
+                    pnpm install --frozen-lockfile
+
+                    # 只构建目标包
+                    pnpm --filter ci-demo run build:ci-demo
                 '''
             }
         }
-        stage('人工确认上线') {
+        stage('人工确认') {
             steps {
-                input message: "确认上传 dist 到服务器 /web ？", ok: "确认上线"
+                input message: "确认上传 dist 到 /web ？", ok: "确认上线"
             }
         }
-        stage('上传 dist 文件') {
+        stage('上传') {
             steps {
                 sshPublisher(
                     publishers: [
@@ -65,21 +70,13 @@ pipeline {
     }
     post {
         always {
+            // 只删 workspace，不动全局 store
             deleteDir()
-            sh '''
-                npm cache clean --force
-                pnpm store prune
-            '''
-        }
-        success {
-            echo "✅ 部署完成！文件上传到 /web，mynginx 已重载"
-        }
-        failure {
-            echo "❌ 流水线失败，查看日志"
         }
     }
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
         timeout(time: 20, unit: 'MINUTES')
+        disableConcurrentBuilds()
     }
 }
