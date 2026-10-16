@@ -4,7 +4,7 @@ import javascriptLogo from "./assets/javascript.svg";
 import viteLogo from "./assets/vite.svg";
 import { setupCounter } from "./counter.js";
 
-console.log("是日向晚呀 美哒哒捏 最喜欢日向晚捏");
+console.log("阴天之后总有续命的晴空");
 
 document.querySelector("#app").innerHTML = `
 <section id="center">
