@@ -7,23 +7,20 @@ pipeline {
         stage('构建') {
             steps {
                 sh '''
-                    set -e
-
-                    # 锁版本，不装 latest
-                    corepack enable
-                    corepack prepare pnpm@10.8.0 --activate
-
-                    # 限制 Node 内存，避免 OOM
-                    export NODE_OPTIONS=--max-old-space-size=2048
-
-                    # 只删 node_modules，保留 lockfile
+                    curl -v http://127.0.0.1:4873
+                    export COREPACK_ENABLE_STRICT=0
+                    export COREPACK_ENABLE_AUTO_PIN=0
+                    # 不要删除 pnpm-lock.yaml！！
                     rm -rf node_modules
-
-                    # 用 lockfile 装，可复现，内存低
-                    pnpm install --frozen-lockfile
-
-                    # 只构建目标包
-                    pnpm --filter ci-demo run build:ci-demo
+                    # 用corepack启用pnpm，不再npm install -g pnpm
+                    corepack enable
+                    pnpm config set registry https://registry.npmmirror.com
+                    pnpm config list
+                    # 去掉 --force，利用lock文件，减少依赖解析内存
+                    pnpm install
+                    # 关键：限制Node堆内存，2G机器设1200MB
+                    export NODE_OPTIONS="--max-old-space-size=1200"
+                    pnpm run build:ci-demo
                 '''
             }
         }
@@ -72,11 +69,20 @@ pipeline {
         always {
             // 只删 workspace，不动全局 store
             deleteDir()
+            sh '''
+                npm cache clean --force
+                pnpm store prune
+            '''
+        }
+        success {
+            echo "✅ 部署完成！文件上传到 /web，mynginx 已重载"
+        }
+        failure {
+            echo "❌ 流水线失败，查看日志"
         }
     }
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
         timeout(time: 20, unit: 'MINUTES')
-        disableConcurrentBuilds()
     }
 }
