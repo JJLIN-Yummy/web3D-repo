@@ -4,40 +4,35 @@ pipeline {
         nodejs 'node20'
     }
     stages {
-        stage('安装依赖打包') {
+        stage('构建') {
             steps {
                 sh '''
-                    # ── 环境变量 ──
-                    export COREPACK_ENABLE_STRICT=0
-                    export COREPACK_ENABLE_AUTO_PIN=0
-                    export PNPM_FETCH_IGNORE_BUILDS=false
+                    set -e
 
-                    # ── 限制 Node 内存（2G 机器防 OOM）──
-                    export NODE_OPTIONS="--max-old-space-size=1024"
+                    # 锁版本，不装 latest
+                    corepack enable
+                    corepack prepare pnpm@10.8.0 --activate
 
-                    # ── 装 pnpm ──
-                    corepack disable
-                    npm config set registry https://registry.npmmirror.com
-                    npm install -g pnpm
+                    # 限制 Node 内存，避免 OOM
+                    export NODE_OPTIONS=--max-old-space-size=2048
 
-                    # ── store 持久化 + 硬链（所有流水线共享，不重复下载）──
-                    pnpm config set store-dir /var/jenkins_home/.pnpm-store
-                    pnpm config set package-import-method hardlink
+                    # 只删 node_modules，保留 lockfile
+                    rm -rf node_modules
 
-                    # ── 只装 ci-demo 的依赖（不装全量，省内存）──
-                    pnpm install --filter ci-demo --frozen-lockfile
+                    # 用 lockfile 装，可复现，内存低
+                    pnpm install --frozen-lockfile
 
-                    # ── 只构建 ci-demo ──
+                    # 只构建目标包
                     pnpm --filter ci-demo run build:ci-demo
                 '''
             }
         }
-        stage('人工确认上线') {
+        stage('人工确认') {
             steps {
-                input message: "确认上传 dist 到服务器 /web ？", ok: "确认上线"
+                input message: "确认上传 dist 到 /web ？", ok: "确认上线"
             }
         }
-        stage('上传 dist 文件') {
+        stage('上传') {
             steps {
                 sshPublisher(
                     publishers: [
@@ -75,23 +70,13 @@ pipeline {
     }
     post {
         always {
+            // 只删 workspace，不动全局 store
             deleteDir()
-            sh '''
-                # 只清没用的包，保留还在用的（别每次全清，否则下次重下）
-                pnpm store prune || true
-            '''
-        }
-        success {
-            echo "✅ 部署完成！文件上传到 /web，mynginx 已重载"
-        }
-        failure {
-            echo "❌ 流水线失败，查看日志"
         }
     }
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
         timeout(time: 20, unit: 'MINUTES')
         disableConcurrentBuilds()
-        retry(2)
     }
 }
