@@ -4,7 +4,7 @@ pipeline {
         nodejs 'node20'
     }
     stages {
-        stage('安装依赖打包') {
+        stage('构建') {
             steps {
                 sh '''
                     curl -v http://127.0.0.1:4873
@@ -24,12 +24,12 @@ pipeline {
                 '''
             }
         }
-        stage('人工确认上线') {
+        stage('人工确认') {
             steps {
-                input message: "确认上传 dist 到服务器 /web ？", ok: "确认上线"
+                input message: "确认上传 dist 到 /web ？", ok: "确认上线"
             }
         }
-        stage('上传 dist 文件') {
+        stage('上传') {
             steps {
                 sshPublisher(
                     publishers: [
@@ -67,6 +67,7 @@ pipeline {
     }
     post {
         always {
+            // 只删 workspace，不动全局 store
             deleteDir()
             sh '''
                 npm cache clean --force
