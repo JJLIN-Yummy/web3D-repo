@@ -7,18 +7,28 @@ pipeline {
         stage('安装依赖打包') {
             steps {
                 sh '''
-                    curl -v http://127.0.0.1:4873
+                    # ── 环境变量 ──
                     export COREPACK_ENABLE_STRICT=0
                     export COREPACK_ENABLE_AUTO_PIN=0
                     export PNPM_FETCH_IGNORE_BUILDS=false
+
+                    # ── 限制 Node 内存（2G 机器防 OOM）──
+                    export NODE_OPTIONS="--max-old-space-size=1024"
+
+                    # ── 装 pnpm ──
                     corepack disable
                     npm config set registry https://registry.npmmirror.com
                     npm install -g pnpm
-                    pnpm config list
-                    rm -rf node_modules
-                    rm -rf pnpm-lock.yaml
-                    pnpm install --force
-                    pnpm run build:ci-demo
+
+                    # ── store 持久化 + 硬链（所有流水线共享，不重复下载）──
+                    pnpm config set store-dir /var/jenkins_home/.pnpm-store
+                    pnpm config set package-import-method hardlink
+
+                    # ── 只装 ci-demo 的依赖（不装全量，省内存）──
+                    pnpm install --filter ci-demo --frozen-lockfile
+
+                    # ── 只构建 ci-demo ──
+                    pnpm --filter ci-demo run build:ci-demo
                 '''
             }
         }
@@ -67,8 +77,8 @@ pipeline {
         always {
             deleteDir()
             sh '''
-                npm cache clean --force
-                pnpm store prune
+                # 只清没用的包，保留还在用的（别每次全清，否则下次重下）
+                pnpm store prune || true
             '''
         }
         success {
@@ -81,5 +91,7 @@ pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
         timeout(time: 20, unit: 'MINUTES')
+        disableConcurrentBuilds()
+        retry(2)
     }
 }
