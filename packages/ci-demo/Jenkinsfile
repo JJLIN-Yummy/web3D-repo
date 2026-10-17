@@ -3,33 +3,45 @@ pipeline {
     tools {
         nodejs 'node20'
     }
+    environment {
+        PNPM_STORE_DIR = "/var/jenkins_home/pnpm-store"
+        PNPM_CACHE_DIR = "/var/jenkins_home/pnpm-cache"
+    }
     stages {
-        stage('构建') {
+        stage('安装依赖打包') {
             steps {
                 sh '''
                     curl -v http://127.0.0.1:4873
                     export COREPACK_ENABLE_STRICT=0
-                    export COREPACK_ENABLE_AUTO_PIN=0
-                    # 不要删除 pnpm-lock.yaml！！
-                    rm -rf node_modules
-                    # 用corepack启用pnpm，不再npm install -g pnpm
-                    corepack enable
+                    export PNPM_FETCH_IGNORE_BUILDS=false
+                    # 切换npm镜像
+                    npm config set registry https://registry.npmmirror.com
+
+                    # === 一次性任务已经全局安装pnpm并corepack disable，移除重复安装逻辑 ===
+                    # pnpm -v >/dev/null 2>&1 || npm install -g pnpm
+
+                    # pnpm全局配置（只首次生效，重复执行无害）
+                    pnpm config set store-dir ${PNPM_STORE_DIR}
+                    pnpm config set cache-dir ${PNPM_CACHE_DIR}
                     pnpm config set registry https://registry.npmmirror.com
                     pnpm config list
-                    # 去掉 --force，利用lock文件，减少依赖解析内存
+
+                    # 删除项目本地node_modules，全局store保留
+                    rm -rf node_modules
                     pnpm install
-                    # 关键：限制Node堆内存，2G机器设1200MB
+
+                    # 限制Node堆内存，2G机器设置1200MB，OOM时可改成1024
                     export NODE_OPTIONS="--max-old-space-size=1200"
                     pnpm run build:ci-demo
                 '''
             }
         }
-        stage('人工确认') {
+        stage('人工确认上线') {
             steps {
-                input message: "确认上传 dist 到 /web ？", ok: "确认上线"
+                input message: "确认上传 dist 到服务器 /web ？", ok: "确认上线"
             }
         }
-        stage('上传') {
+        stage('上传 dist 文件') {
             steps {
                 sshPublisher(
                     publishers: [
@@ -54,10 +66,8 @@ pipeline {
                     publishers: [
                         sshPublisherDesc(
                             configName: 'server-01',
-                            transfers: [
-                                sshTransfer(
-                                    command: 'docker exec mynginx nginx -s reload'
-                                )
+                            configs: [
+                                sshCommand(command: 'docker exec mynginx nginx -s reload')
                             ]
                         )
                     ]
@@ -67,11 +77,9 @@ pipeline {
     }
     post {
         always {
-            // 只删 workspace，不动全局 store
-            deleteDir()
+            # 只删除本次构建产出的dist静态文件，保留pnpm全局缓存
             sh '''
-                npm cache clean --force
-                pnpm store prune
+                rm -rf packages/ci-demo/dist
             '''
         }
         success {
@@ -82,7 +90,7 @@ pipeline {
         }
     }
     options {
-        buildDiscarder(logRotator(numToKeepStr: '5'))
-        timeout(time: 20, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '5')) // 只保留最近5次构建，控制工作区磁盘
+        timeout(time: 20, unit: 'MINUTES') // 20分钟超时，防止进程卡死占用内存
     }
 }
