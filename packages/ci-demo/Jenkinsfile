@@ -1,5 +1,5 @@
 pipeline {
-    agent none  // 顶层写 agent none，代表不在顶层占用agent，stage内部单独指定agent
+    agent none
     tools {
         nodejs 'node20'
     }
@@ -10,7 +10,7 @@ pipeline {
     }
     stages {
         stage('安装依赖打包') {
-            agent { label '你的agent标签' } // 替换成你的agent节点label
+            agent { label 'master' }
             steps {
                 sh '''
                     curl -v http://127.0.0.1:4873
@@ -23,7 +23,8 @@ pipeline {
                     rm -rf packages/ci-demo/dist
                     npx pnpm config list
                     npx pnpm install --frozen-lockfile
-                    npx pnpm run build --filter ci-demo
+                    # 下面这一行是修复后的打包命令
+                    npx pnpm run build:ci-demo
                 '''
             }
             post {
@@ -38,7 +39,7 @@ pipeline {
             }
         }
         stage('上传dist + 重载nginx') {
-            agent { label '你的agent标签' } // 替换成你的agent节点label
+            agent { label 'master' }
             steps {
                 unstash 'dist-artifact'
                 sshPublisher(
@@ -73,7 +74,7 @@ pipeline {
     }
     post {
         always {
-            echo "流水线执行结束" // 必须至少一行，不能空！解决第二个报错
+            echo "流水线执行结束"
         }
         success {
             echo "✅ ci-demo部署完成！文件上传到 /web，mynginx 已重载。"
