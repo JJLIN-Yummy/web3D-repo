@@ -11,7 +11,6 @@ pipeline {
                     export COREPACK_ENABLE_STRICT=0
                     export COREPACK_ENABLE_AUTO_PIN=0
                     export PNPM_FETCH_IGNORE_BUILDS=false
-                    # 关键：给Node设置更大堆内存，打包阶段生效
                     export NODE_OPTIONS="--max-old-space-size=8192"
                     corepack disable
                     npm config set registry https://registry.npmmirror.com
