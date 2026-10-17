@@ -12,24 +12,24 @@ pipeline {
             steps {
                 sh '''
                     curl -v http://127.0.0.1:4873
-                    export COREPACK_ENABLE_STRICT=0
                     export PNPM_FETCH_IGNORE_BUILDS=false
-                    # 切换npm镜像
                     npm config set registry https://registry.npmmirror.com
 
-                    # pnpm全局配置（只首次生效，重复执行无害）
-                    pnpm config set store-dir ${PNPM_STORE_DIR}
-                    pnpm config set cache-dir ${PNPM_CACHE_DIR}
-                    pnpm config set registry https://registry.npmmirror.com
-                    pnpm config list
+                    # 仅安装pnpm到node_modules，用来获取本地二进制，不装全量依赖
+                    npm install pnpm
 
-                    # 删除项目本地node_modules，全局store保留
+                    # 调用项目本地pnpm二进制，完全不触发Corepack
+                    ./node_modules/.bin/pnpm config set store-dir ${PNPM_STORE_DIR}
+                    ./node_modules/.bin/pnpm config set cache-dir ${PNPM_CACHE_DIR}
+                    ./node_modules/.bin/pnpm config set registry https://registry.npmmirror.com
+                    ./node_modules/.bin/pnpm config list
+
+                    # 删除临时node_modules，用pnpm读取pnpm-lock.yaml完整安装
                     rm -rf node_modules
-                    pnpm install
+                    ./node_modules/.bin/pnpm install
 
-                    # 限制Node堆内存，2G机器设置1200MB，OOM时可改成1024
                     export NODE_OPTIONS="--max-old-space-size=1200"
-                    pnpm run build:ci-demo
+                    ./node_modules/.bin/pnpm run build:ci-demo
                 '''
             }
         }
@@ -86,7 +86,7 @@ pipeline {
         }
     }
     options {
-        buildDiscarder(logRotator(numToKeepStr: '5')) // 只保留最近5次构建，控制工作区磁盘
-        timeout(time: 20, unit: 'MINUTES') // 20分钟超时，防止进程卡死占用内存
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        timeout(time: 20, unit: 'MINUTES')
     }
 }
