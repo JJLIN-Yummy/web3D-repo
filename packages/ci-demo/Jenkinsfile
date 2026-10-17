@@ -1,5 +1,5 @@
 pipeline {
-    agent none 
+    agent none
     tools {
         nodejs 'node20'
     }
@@ -10,7 +10,7 @@ pipeline {
     }
     stages {
         stage('安装依赖打包') {
-            agent { label 'master' } 
+            agent { label 'master' }
             steps {
                 sh '''
                     curl -v http://127.0.0.1:4873
@@ -23,7 +23,8 @@ pipeline {
                     rm -rf packages/ci-demo/dist
                     npx pnpm config list
                     npx pnpm install --frozen-lockfile
-                    npx pnpm run build --filter ci-demo
+                    # 下面这一行是修复后的打包命令
+                    npx pnpm run build:ci-demo
                 '''
             }
             post {
@@ -38,7 +39,7 @@ pipeline {
             }
         }
         stage('上传dist + 重载nginx') {
-            agent { label 'master' } 
+            agent { label 'master' }
             steps {
                 unstash 'dist-artifact'
                 sshPublisher(
