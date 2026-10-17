@@ -17,9 +17,6 @@ pipeline {
                     # 切换npm镜像
                     npm config set registry https://registry.npmmirror.com
 
-                    # === 一次性任务已经全局安装pnpm并corepack disable，移除重复安装逻辑 ===
-                    # pnpm -v >/dev/null 2>&1 || npm install -g pnpm
-
                     # pnpm全局配置（只首次生效，重复执行无害）
                     pnpm config set store-dir ${PNPM_STORE_DIR}
                     pnpm config set cache-dir ${PNPM_CACHE_DIR}
@@ -77,7 +74,6 @@ pipeline {
     }
     post {
         always {
-            # 只删除本次构建产出的dist静态文件，保留pnpm全局缓存
             sh '''
                 rm -rf packages/ci-demo/dist
             '''
