@@ -72,7 +72,7 @@ pipeline {
             '''
         }
         success {
-            echo "✅ 部署完成！文件上传到 /web，mynginx 已重载"
+            echo "✅ 部署完成！文件上传到 /web，mynginx 已重载。"
         }
         failure {
             echo "❌ 流水线失败，查看日志"
