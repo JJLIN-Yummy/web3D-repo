@@ -1,4 +1,5 @@
 pipeline {
+    agent none 
     tools {
         nodejs 'node20'
     }
@@ -9,7 +10,7 @@ pipeline {
     }
     stages {
         stage('安装依赖打包') {
-            agent { label '你的agent标签' }
+            agent { label 'master' } 
             steps {
                 sh '''
                     curl -v http://127.0.0.1:4873
@@ -22,7 +23,7 @@ pipeline {
                     rm -rf packages/ci-demo/dist
                     npx pnpm config list
                     npx pnpm install --frozen-lockfile
-                    npx pnpm build:ci-demo
+                    npx pnpm run build --filter ci-demo
                 '''
             }
             post {
@@ -37,7 +38,7 @@ pipeline {
             }
         }
         stage('上传dist + 重载nginx') {
-            agent { label '你的agent标签' }
+            agent { label 'master' } 
             steps {
                 unstash 'dist-artifact'
                 sshPublisher(
@@ -72,6 +73,7 @@ pipeline {
     }
     post {
         always {
+            echo "流水线执行结束"
         }
         success {
             echo "✅ ci-demo部署完成！文件上传到 /web，mynginx 已重载。"
