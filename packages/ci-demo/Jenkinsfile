@@ -3,33 +3,24 @@ pipeline {
     tools {
         nodejs 'node20'
     }
-    environment {
-        PNPM_STORE_DIR = "/var/jenkins_home/pnpm-store"
-        PNPM_CACHE_DIR = "/var/jenkins_home/pnpm-cache"
-    }
     stages {
         stage('安装依赖打包') {
             steps {
                 sh '''
                     curl -v http://127.0.0.1:4873
+                    export COREPACK_ENABLE_STRICT=0
+                    export COREPACK_ENABLE_AUTO_PIN=0
                     export PNPM_FETCH_IGNORE_BUILDS=false
+                    # 关键：给Node设置更大堆内存，打包阶段生效
+                    export NODE_OPTIONS="--max-old-space-size=8192"
+                    corepack disable
                     npm config set registry https://registry.npmmirror.com
-
-                    # 仅安装pnpm到node_modules，用来获取本地二进制，不装全量依赖
-                    npm install pnpm
-
-                    # 调用项目本地pnpm二进制，完全不触发Corepack
-                    ./node_modules/.bin/pnpm config set store-dir ${PNPM_STORE_DIR}
-                    ./node_modules/.bin/pnpm config set cache-dir ${PNPM_CACHE_DIR}
-                    ./node_modules/.bin/pnpm config set registry https://registry.npmmirror.com
-                    ./node_modules/.bin/pnpm config list
-
-                    # 删除临时node_modules，用pnpm读取pnpm-lock.yaml完整安装
+                    npm install -g pnpm
+                    pnpm config list
                     rm -rf node_modules
-                    ./node_modules/.bin/pnpm install
-
-                    export NODE_OPTIONS="--max-old-space-size=1200"
-                    ./node_modules/.bin/pnpm run build:ci-demo
+                    rm -rf pnpm-lock.yaml
+                    pnpm install --force
+                    pnpm run build:ci-demo
                 '''
             }
         }
@@ -63,8 +54,10 @@ pipeline {
                     publishers: [
                         sshPublisherDesc(
                             configName: 'server-01',
-                            configs: [
-                                sshCommand(command: 'docker exec mynginx nginx -s reload')
+                            transfers: [
+                                sshTransfer(
+                                    command: 'docker exec mynginx nginx -s reload'
+                                )
                             ]
                         )
                     ]
@@ -74,8 +67,10 @@ pipeline {
     }
     post {
         always {
+            # 删掉deleteDir()！不要每次全删工作目录，保留pnpm缓存，减少下载与内存开销
             sh '''
-                rm -rf packages/ci-demo/dist
+                npm cache clean --force
+                pnpm store prune
             '''
         }
         success {
