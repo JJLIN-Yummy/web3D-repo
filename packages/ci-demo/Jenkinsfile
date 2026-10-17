@@ -1,10 +1,15 @@
 pipeline {
-    agent any
     tools {
         nodejs 'node20'
     }
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        timeout(time: 20, unit: 'MINUTES')
+        disableConcurrentBuilds()
+    }
     stages {
         stage('安装依赖打包') {
+            agent { label '你的agent标签' }
             steps {
                 sh '''
                     curl -v http://127.0.0.1:4873
@@ -14,22 +19,27 @@ pipeline {
                     export NODE_OPTIONS="--max-old-space-size=8192"
                     corepack disable
                     npm config set registry https://registry.npmmirror.com
-                    npm install -g pnpm
-                    pnpm config list
-                    rm -rf node_modules
-                    rm -rf pnpm-lock.yaml
-                    pnpm install --force
-                    pnpm run build:ci-demo
+                    rm -rf packages/ci-demo/dist
+                    npx pnpm config list
+                    npx pnpm install --frozen-lockfile
+                    npx pnpm build:ci-demo
                 '''
+            }
+            post {
+                always {
+                    stash includes: 'packages/ci-demo/dist/**', name: 'dist-artifact'
+                }
             }
         }
         stage('人工确认上线') {
             steps {
-                input message: "确认上传 dist 到服务器 /web ？", ok: "确认上线"
+                input message: "确认上传 packages/ci-demo/dist 到服务器 /web ？", ok: "确认上线"
             }
         }
-        stage('上传 dist 文件') {
+        stage('上传dist + 重载nginx') {
+            agent { label '你的agent标签' }
             steps {
+                unstash 'dist-artifact'
                 sshPublisher(
                     publishers: [
                         sshPublisherDesc(
@@ -45,10 +55,6 @@ pipeline {
                         )
                     ]
                 )
-            }
-        }
-        stage('重载 Nginx') {
-            steps {
                 sshPublisher(
                     publishers: [
                         sshPublisherDesc(
@@ -66,20 +72,12 @@ pipeline {
     }
     post {
         always {
-            sh '''
-                npm cache clean --force
-                pnpm store prune
-            '''
         }
         success {
-            echo "✅ 部署完成！文件上传到 /web，mynginx 已重载。"
+            echo "✅ ci-demo部署完成！文件上传到 /web，mynginx 已重载。"
         }
         failure {
-            echo "❌ 流水线失败，查看日志"
+            echo "❌ ci-demo流水线失败，查看日志"
         }
-    }
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '5'))
-        timeout(time: 20, unit: 'MINUTES')
     }
 }
