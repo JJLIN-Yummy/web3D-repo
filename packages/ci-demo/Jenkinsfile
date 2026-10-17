@@ -66,7 +66,6 @@ pipeline {
     }
     post {
         always {
-            # 删掉deleteDir()！不要每次全删工作目录，保留pnpm缓存，减少下载与内存开销
             sh '''
                 npm cache clean --force
                 pnpm store prune
