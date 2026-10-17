@@ -9,6 +9,13 @@ export default defineConfig((option) => {
   // const env = loadEnv(mode, root);
   const base = baseConfig(option);
   return {
-    ...mergeConfig(base, {}),
+    ...mergeConfig(base, {
+      build: {
+        sourcemap: false, // 关闭sourcemap，大幅降低内存占用
+        rollupOptions: {
+          maxParallelFileOps: 2, // 减少并行文件处理，降低内存峰值
+        },
+      },
+    }),
   };
 });

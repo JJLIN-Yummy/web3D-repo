@@ -79,11 +79,12 @@
     "unplugin-vue-components": "^32.1.0",
     "vite": "^7.3.5",
     "vitest": "^4.1.9",
-    "vue-eslint-parser": "^10.4.1"
+    "vue-eslint-parser": "^10.4.1",
+    "pnpm": "^10.8.0"
   },
   "dependencies": {
-    "@common/request": "^1.0.4",
-    "@common/tools": "^1.0.1",
+    "@common/request": "^1.0.6",
+    "@common/tools": "^1.0.3",
     "bitecs": "0.3.36"
   }
 }
