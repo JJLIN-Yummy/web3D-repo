@@ -8,3 +8,13 @@ packages:
   # exclude packages that are inside b directories
   #- '!**/A/**'
   - '!**/node_modules'
+
+supportedArchitectures:
+  os:
+    - win32
+    - linux
+    - wasip1-threads
+  cpu:
+    - x64
+    - wasm32
+
