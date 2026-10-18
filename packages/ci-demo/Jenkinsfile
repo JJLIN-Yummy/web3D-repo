@@ -22,9 +22,10 @@ pipeline {
                     #npm config set registry https://registry.npmmirror.com
                     # 如果想要pnpm不走verdaccio，取消下面这行注释
                     # npx pnpm config set registry https://registry.npmmirror.com
+                    rm -rf node_modules
                     rm -rf packages/ci-demo/dist
                     npx pnpm config list
-                    npx pnpm install --frozen-lockfile --optional
+                    npx pnpm install --frozen-lockfile
                     npx pnpm run build:ci-demo
                 '''
             }
