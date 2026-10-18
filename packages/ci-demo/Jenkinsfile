@@ -1,8 +1,5 @@
 pipeline {
     agent none
-    tools {
-        nodejs 'node20'
-    }
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
         timeout(time: 20, unit: 'MINUTES')
@@ -11,6 +8,9 @@ pipeline {
     stages {
         stage('安装依赖打包') {
             agent { label 'master' }
+            tools {
+                nodejs 'node20'
+            }
             steps {
                 sh '''
                     curl -v http://127.0.0.1:4873
@@ -19,16 +19,17 @@ pipeline {
                     export PNPM_FETCH_IGNORE_BUILDS=false
                     export NODE_OPTIONS="--max-old-space-size=8192"
                     corepack disable
-                    npm config set registry https://registry.npmmirror.com
+                    #npm config set registry https://registry.npmmirror.com
+                    # 如果想要pnpm不走verdaccio，取消下面这行注释
+                    # npx pnpm config set registry https://registry.npmmirror.com
                     rm -rf packages/ci-demo/dist
                     npx pnpm config list
-                    npx pnpm install --frozen-lockfile
-                    # 下面这一行是修复后的打包命令
+                    npx pnpm install --frozen-lockfile --optional
                     npx pnpm run build:ci-demo
                 '''
             }
             post {
-                always {
+                success {
                     stash includes: 'packages/ci-demo/dist/**', name: 'dist-artifact'
                 }
             }
@@ -40,6 +41,9 @@ pipeline {
         }
         stage('上传dist + 重载nginx') {
             agent { label 'master' }
+            tools {
+                nodejs 'node20'
+            }
             steps {
                 unstash 'dist-artifact'
                 sshPublisher(
@@ -52,16 +56,7 @@ pipeline {
                                     remoteDirectory: '/web',
                                     cleanRemote: true,
                                     removePrefix: 'packages/ci-demo/dist'
-                                )
-                            ]
-                        )
-                    ]
-                )
-                sshPublisher(
-                    publishers: [
-                        sshPublisherDesc(
-                            configName: 'server-01',
-                            transfers: [
+                                ),
                                 sshTransfer(
                                     command: 'docker exec mynginx nginx -s reload'
                                 )
