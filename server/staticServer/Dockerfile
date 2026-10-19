@@ -1,30 +1,13 @@
-# 构建阶段 builder：tsup编译后端TS代码
-FROM node:20-alpine AS builder
-WORKDIR /app
-
-# monorepo 拷贝依赖清单，利用docker缓存
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY server/staticServer/package.json ./server/staticServer/
-
-# ✅ 使用包名 @web3d/static-server，带上...拉取内部依赖
-RUN npm install -g pnpm && pnpm install --filter @web3d/static-server...
-
-# 拷贝全部源码
-COPY . .
-
-# ✅ 和你项目脚本保持一致，用包名执行build
-RUN pnpm -F @web3d/static-server build
-
-# 生产运行镜像
+# 镜像只用来运行代码，不再编译！
 FROM node:20-alpine
 WORKDIR /app
 
-# 只复制编译产物和package.json
-COPY --from=builder /app/server/staticServer/dist ./dist
-COPY --from=builder /app/server/staticServer/package.json ./
-
-# 生产镜像只安装当前包生产依赖
+# 拷贝子包的package.json，只安装生产依赖
+COPY server/staticServer/package.json ./
 RUN npm install -g pnpm && pnpm install --prod
+
+# 拷贝编译好的dist产物（dist是jenkins宿主机tsup打包出来的）
+COPY server/staticServer/dist ./dist
 
 EXPOSE 3000
 CMD ["node", "dist/server.cjs"]
