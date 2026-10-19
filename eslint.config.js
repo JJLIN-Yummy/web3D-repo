@@ -17,7 +17,10 @@ export default [
   ...tseslint.configs.recommended,
 
   {
-    files: ["packages/**/**/*.{ts,tsx,mts,cts}"],
+    files: [
+      "packages/**/**/*.{ts,tsx,mts,cts}",
+      "server/**/**/*.{ts,tsx,mts,cts}",
+    ],
     languageOptions: {
       parserOptions: {
         project: true,

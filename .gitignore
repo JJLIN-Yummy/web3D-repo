@@ -3,6 +3,8 @@ node_modules
 .vscode
 dist
 **/coverage/
-server
 auto-imports.d.ts
 components.d.ts
+.env
+.env.*
+!.env.example
