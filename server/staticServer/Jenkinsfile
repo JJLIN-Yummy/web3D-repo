@@ -1,39 +1,42 @@
 pipeline {
     agent any
+    // 启用你截图配置好的 node20
+    tools {
+        nodejs 'node20'
+    }
     environment {
-            VITE_OSS_REGION = credentials('VITE_OSS_REGION')
-            VITE_OSS_ACCESS_KEY_ID = credentials('VITE_OSS_ACCESS_KEY_ID')
-            VITE_OSS_ACCESS_KEY_SECRET = credentials('VITE_OSS_ACCESS_KEY_SECRET')
-            VITE_OSS_BUCKET = credentials('VITE_OSS_BUCKET')
-            VITE_PORT = credentials('VITE_PORT')
+        VITE_OSS_REGION = credentials('VITE_OSS_REGION')
+        VITE_OSS_ACCESS_KEY_ID = credentials('VITE_OSS_ACCESS_KEY_ID')
+        VITE_OSS_ACCESS_KEY_SECRET = credentials('VITE_OSS_ACCESS_KEY_SECRET')
+        VITE_OSS_BUCKET = credentials('VITE_OSS_BUCKET')
+        VITE_PORT = credentials('VITE_PORT')
     }
     stages {
-        stage('拉取代码') {
+        stage('安装依赖 & 编译（宿主机执行）') {
             steps {
-                checkout scm
-            }
-        }
-
-        stage('构建镜像') {
-            steps {
-                // 后端tsup打包，不需要任何build-arg，直接构建
                 sh """
-                docker build -t static-server \
-                  -f ./server/staticServer/Dockerfile .
+                corepack enable
+                pnpm install --filter @web3d/static-server...
+                pnpm -F @web3d/static-server build
                 """
             }
         }
-
-        stage('停止旧容器') {
+        stage('构建运行镜像') {
             steps {
-                sh '''
-                docker stop static-server || true
-                docker rm static-server || true
-                '''
+                sh """
+                docker build -t static-server -f ./server/staticServer/Dockerfile .
+                """
             }
         }
-
-        stage('启动新容器，注入全部VITE_*环境变量') {
+        stage('停止旧容器') {
+            steps {
+                sh """
+                docker stop static-server || true
+                docker rm static-server || true
+                """
+            }
+        }
+        stage('启动新容器') {
             steps {
                 sh '''
                 docker run -d \
@@ -41,8 +44,8 @@ pipeline {
                   --name static-server \
                   -e VITE_OSS_REGION \
                   -e VITE_OSS_ACCESS_KEY_ID \
-                  -e VITE_OSS_BUCKET \
                   -e VITE_OSS_ACCESS_KEY_SECRET \
+                  -e VITE_OSS_BUCKET \
                   -e VITE_PORT \
                   static-server
                 '''
