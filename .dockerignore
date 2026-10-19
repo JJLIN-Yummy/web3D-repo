@@ -1,0 +1,22 @@
+# node_modules
+node_modules
+**/node_modules
+
+# tsup打包产物
+**/dist
+
+# git
+.git
+.gitignore
+
+# 环境变量
+.env
+.env.*
+*.log
+
+# IDE
+.vscode
+.idea
+
+# pnpm缓存
+.pnpm

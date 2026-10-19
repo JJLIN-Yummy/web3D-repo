@@ -1,0 +1,21 @@
+{
+  "name": "@web3d/static-server",
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development tsup --watch --onSuccess \"node dist/server.cjs\"",
+    "build": "cross-env NODE_ENV=production tsup",
+    "start": "cross-env NODE_ENV=production node dist/server.cjs"
+  },
+  "dependencies": {
+    "ali-oss": "^6.23.0",
+    "cors": "^2.8.6",
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "@types/ali-oss": "^6.23.3",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.5.0",
+    "cross-env": "^10.1.0"
+  }
+}

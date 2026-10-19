@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+    environment {
+            VITE_OSS_REGION = credentials('VITE_OSS_REGION')
+            VITE_OSS_ACCESS_KEY_ID = credentials('VITE_OSS_ACCESS_KEY_ID')
+            VITE_OSS_ACCESS_KEY_SECRET = credentials('VITE_OSS_ACCESS_KEY_SECRET')
+            VITE_OSS_BUCKET = credentials('VITE_OSS_BUCKET')
+            VITE_PORT = credentials('VITE_PORT')
+    }
+    stages {
+        stage('拉取代码') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('构建镜像') {
+            steps {
+                // 后端tsup打包，不需要任何build-arg，直接构建
+                sh """
+                docker build -t static-server \
+                  -f ./server/staticServer/Dockerfile .
+                """
+            }
+        }
+
+        stage('停止旧容器') {
+            steps {
+                sh '''
+                docker stop static-server || true
+                docker rm static-server || true
+                '''
+            }
+        }
+
+        stage('启动新容器，注入全部VITE_*环境变量') {
+            steps {
+                sh '''
+                docker run -d \
+                  -p 3000:3000 \
+                  --name static-server \
+                  -e VITE_OSS_REGION \
+                  -e VITE_OSS_ACCESS_KEY_ID \
+                  -e VITE_OSS_BUCKET \
+                  -e VITE_OSS_ACCESS_KEY_SECRET \
+                  -e VITE_PORT \
+                  static-server
+                '''
+            }
+        }
+    }
+    post {
+        always {
+            echo "流水线执行完毕"
+        }
+    }
+}
