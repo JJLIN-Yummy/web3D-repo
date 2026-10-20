@@ -265,7 +265,7 @@ export class World {
 
     // },1000)
 
-    await Pormise.resolve(void 0);
+    await Promise.resolve(void 0);
   }
 
   preRender() {
