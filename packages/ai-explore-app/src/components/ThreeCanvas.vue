@@ -29,6 +29,7 @@ import { mousedownEntity } from "@/global/event/mousedown";
 import { resourceQueue, resourceQueueEventName } from "@/global/resourceQueue";
 import { resourceQueueName } from "@/enums";
 import { getEnv, getStaticResourceUrl } from "@/utils/env";
+import { getImageUrlByOss } from "@/utils/getImageUrl";
 
 const buyStore = useBuyStore();
 
@@ -82,9 +83,14 @@ defineExpose({
 onMounted(async () => {
   if (!container.value) return;
   // 1. 创建底层3D应用（唯一new ECSWorld的地方）
+
+  const skyUrl = await getImageUrlByOss.getUrl({
+    url: "/public/textures/hdr/sky/sky.hdr",
+  });
+
   app = new ThreeApp({
     container: container.value,
-    hdrPath: getStaticResourceUrl("/textures/hdr/sky/sky.hdr"),
+    hdrPath: skyUrl,
     exposure: 0.7,
     fov: 65,
     playerHeight: 2.0,

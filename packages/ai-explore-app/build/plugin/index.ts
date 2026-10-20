@@ -23,7 +23,7 @@ export function createVitePlugins(): PluginOption[] {
   if (process.env.NODE_ENV === "production") {
     plugins.push(
       visualizerPlugin({
-        open: true,
+        open: false,
         filename: "stats.html",
         gzipSize: true,
       })

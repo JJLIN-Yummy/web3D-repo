@@ -15,7 +15,6 @@ import {
   Transform,
 } from "../ecs/ECSWorld";
 import { disposeObject } from "../utils/dispose";
-import { Sky } from "three/examples/jsm/objects/Sky";
 import { setupGroundTexture } from "@/utils";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { addComponent, addEntity, type IWorld } from "bitecs";
@@ -28,10 +27,13 @@ import type { resourceQueueTaskType } from "@/global/resourceQueue/type";
 import { runTask } from "@/utils/idleTimeTask";
 import { loadTileTexture } from "@/utils/textureDecoderWorker";
 import { uuidv4 } from "@common/tools";
-import { getStaticResourceUrl } from "@/utils/env";
+import { getImageUrlByOss } from "@/utils/getImageUrl";
+import { concurRequests } from "@common/request";
 
 export class World {
   public grassModel: THREE.Group | null = null;
+  private emitter = concurRequests(2).emitter;
+
   constructor(private readonly app: ThreeApp) {}
 
   async init() {
@@ -39,7 +41,7 @@ export class World {
     this.createLightSource();
     this.createDebugHelper();
     this.loadGrassModel();
-    await this.createRoad();
+    // await this.createRoad();
     const creatRoadTask = {
       id: uuidv4(),
       status: resourceQueueStatusEnum.pending,
@@ -64,7 +66,7 @@ export class World {
 
     const arr = [
       {
-        url: "/logo/html.png",
+        url: "/public/logo/html.png",
         composeOption: {
           position: { x: -47, y: 0, z: -3 },
         },
@@ -73,7 +75,7 @@ export class World {
           "111111111111111111111111111111111111111111111111111111111111111111111111",
       },
       {
-        url: "/logo/css3.png",
+        url: "/public/logo/css3.png",
         composeOption: {
           position: { x: -47, y: 0, z: 3 },
           rotate: { y: Math.PI },
@@ -82,7 +84,7 @@ export class World {
         content: "",
       },
       {
-        url: "/logo/js.png",
+        url: "/public/logo/js.png",
         composeOption: {
           position: { x: -45, y: 0, z: -3 },
         },
@@ -90,7 +92,7 @@ export class World {
         content: "",
       },
       {
-        url: "/logo/vue.png",
+        url: "/public/logo/vue.png",
         composeOption: {
           position: { x: -45, y: 0, z: 3 },
           rotate: { y: Math.PI },
@@ -99,7 +101,7 @@ export class World {
         content: "",
       },
       {
-        url: "/logo/react.png",
+        url: "/public/logo/react.png",
         composeOption: {
           position: { x: -43, y: 0, z: -3 },
         },
@@ -107,7 +109,7 @@ export class World {
         content: "",
       },
       {
-        url: "/logo/pinia.png",
+        url: "/public/logo/pinia.png",
         composeOption: {
           position: { x: -43, y: 0, z: 3 },
           rotate: { y: Math.PI },
@@ -116,7 +118,7 @@ export class World {
         content: "",
       },
       {
-        url: "/logo/nodejs.png",
+        url: "/public/logo/nodejs.png",
         composeOption: {
           position: { x: -41, y: 0, z: -3 },
         },
@@ -124,7 +126,7 @@ export class World {
         content: "",
       },
       {
-        url: "/logo/vite.png",
+        url: "/public/logo/vite.png",
         composeOption: {
           position: { x: -41, y: 0, z: 3 },
           rotate: { y: Math.PI },
@@ -133,7 +135,7 @@ export class World {
         content: "",
       },
       {
-        url: "/logo/tailwind-css.png",
+        url: "/public/logo/tailwind-css.png",
         composeOption: {
           position: { x: -39, y: 0, z: -3 },
         },
@@ -141,7 +143,7 @@ export class World {
         content: "",
       },
       {
-        url: "/logo/java.png",
+        url: "/public/logo/java.png",
         composeOption: {
           position: { x: -39, y: 0, z: 3 },
           rotate: { y: Math.PI },
@@ -150,7 +152,7 @@ export class World {
         content: "",
       },
       {
-        url: "/logo/spring.png",
+        url: "/public/logo/spring.png",
         composeOption: {
           position: { x: -37, y: 0, z: -3 },
         },
@@ -158,7 +160,7 @@ export class World {
         content: "",
       },
       {
-        url: "/logo/redis.png",
+        url: "/public/logo/redis.png",
         composeOption: {
           position: { x: -37, y: 0, z: 3 },
           rotate: { y: Math.PI },
@@ -167,7 +169,7 @@ export class World {
         content: "",
       },
       {
-        url: "/logo/docker.png",
+        url: "/public/logo/docker.png",
         composeOption: {
           position: { x: -35, y: 0, z: -3 },
         },
@@ -175,7 +177,7 @@ export class World {
         content: "",
       },
       {
-        url: "/logo/kubernets.png",
+        url: "/public/logo/kubernets.png",
         composeOption: {
           position: { x: -35, y: 0, z: 3 },
           rotate: { y: Math.PI },
@@ -185,9 +187,17 @@ export class World {
       },
     ];
 
-    const pedestalFunc = this.createModelComponent.bind(this, {
-      url: getStaticResourceUrl("/model/pedestal/pedestal.glb"),
-    });
+    const pedestalFunc = async () => {
+      const url = await getImageUrlByOss.getUrl({
+        url: "/public/model/pedestal/pedestal.glb",
+      });
+      if (!url) return;
+      const f = this.createModelComponent.bind(this, {
+        url: url,
+      });
+      return f();
+    };
+
     // const preRender = this.preRender.bind(this);
     let pedestal;
     const pedestalTask = {
@@ -202,9 +212,14 @@ export class World {
           // const createLOGOComponent = this.createLOGOComponent.bind(this,{url: item.url});
           // const composeFunc = this.composePedestal_LOGO.bind(this, {pedestal:pedestal.clone(),logo:logo.mesh,position:item.composeOption.position,rotate:item.composeOption.rotate})
           const taskFunc = async () => {
-            const logo = await this.createLOGOComponent({
-              url: getStaticResourceUrl(item.url),
-            });
+            const url = await this.emitter(
+              async () => await getImageUrlByOss.getUrl({ url: item.url })
+            );
+            if (!url) return;
+
+            const logo = await this.emitter(
+              async () => await this.createLOGOComponent({ url })
+            );
             if (!logo.mesh) return;
             return this.composePedestal_LOGO({
               pedestal: pedestal.clone(),
@@ -213,6 +228,7 @@ export class World {
               rotate: item.composeOption.rotate,
             });
           };
+
           const task: resourceQueueTaskType<number | null> = {
             status: resourceQueueStatusEnum.pending,
             run: taskRunHelperEmitter(taskFunc),
@@ -236,21 +252,7 @@ export class World {
               // preRender();
               // yield;
             };
-            runTask(f());
-
-            // let timer = setTimeout(()=>{
-            //     const logo = result;
-            //     if(!logo) return;
-            //     const id = this.composePedestal_LOGO({pedestal:pedestal.clone(),logo:logo.mesh,position:item.composeOption.position,rotate:item.composeOption.rotate});
-            //     resourceQueue.runTask(resourceQueueName.common);
-            //     entityMsgMap.set(id, {
-            //         title: item.title,
-            //         content: item.content
-            //     })
-            //     timer = null;
-            //     clearTimeout(timer);
-            //
-            // },2000)
+            this.emitter(() => runTask(f()));
           };
         });
       },
@@ -262,6 +264,8 @@ export class World {
     // this.createModel({url:'/public/model/furniture/sofa.glb', position:{x:0,y:0,z:0}})
 
     // },1000)
+
+    await Promise.resolve(void 0);
   }
 
   preRender() {
@@ -273,15 +277,25 @@ export class World {
     const preRender = this.preRender.bind(this);
 
     const loaderFunc = async () => {
-      const diffuse = await texLoader.loadAsync(
-        getStaticResourceUrl("/textures/ground/rocky_terrain_02_diff_1k.jpg")
+      const diffuseUrl = await this.emitter(async () =>
+        getImageUrlByOss.getUrl({
+          url: "/public/textures/ground/rocky_terrain_02_diff_1k.jpg",
+        })
       );
-      const normal = await texLoader.loadAsync(
-        getStaticResourceUrl("/textures/ground/rocky_terrain_02_nor_gl_1k.jpg")
+      const normalUrl = await this.emitter(async () =>
+        getImageUrlByOss.getUrl({
+          url: "/public/textures/ground/rocky_terrain_02_nor_gl_1k.jpg",
+        })
       );
-      const rough = await texLoader.loadAsync(
-        getStaticResourceUrl("/textures/ground/rocky_terrain_02_rough_1k.jpg")
+      const roughUrl = await this.emitter(async () =>
+        getImageUrlByOss.getUrl({
+          url: "/public/textures/ground/rocky_terrain_02_rough_1k.jpg",
+        })
       );
+
+      const diffuse = await texLoader.loadAsync(diffuseUrl);
+      const normal = await texLoader.loadAsync(normalUrl);
+      const rough = await texLoader.loadAsync(roughUrl);
 
       return {
         diffuse,
@@ -327,8 +341,14 @@ export class World {
   public loadGrassModel() {
     const loader = new GLTFLoader();
     // 把解压出来的 grass.glb 放到 public/models/ 下
-    const gltfFunc = () =>
-      loader.loadAsync(getStaticResourceUrl("/model/plant/grass/grass.glb"));
+
+    const gltfFunc = async () => {
+      const url = await this.emitter(async () =>
+        getImageUrlByOss.getUrl({ url: "/public/model/plant/grass/grass.glb" })
+      );
+      if (!url) return;
+      return await loader.loadAsync(url);
+    };
 
     const task = {
       status: resourceQueueStatusEnum.pending,
@@ -410,28 +430,28 @@ export class World {
     this.app.scene.add(gridHelper);
   }
 
-  private createSky() {
-    // 1. 物理大气天空主体
-    const sky = new Sky();
-    sky.scale.setScalar(1200); // 超大包裹范围，无穿模
-    this.app.scene.add(sky);
-
-    const skyU = sky.material.uniforms;
-    // 太阳光向量，和你的DirectionalLight位置完全同步，光影色调统一
-    const sunVector = new THREE.Vector3(20, 40, 15).normalize();
-    skyU.sunPosition.value.copy(sunVector);
-
-    // 高级写实参数（不发白、深邃蓝天，无白雾）
-    skyU.turbidity.value = 2.2; // 大气浑浊度，低=干净通透蓝天
-    skyU.rayleigh.value = 0.7; // 瑞利散射，控制蓝色浓度，数值低不会泛白
-    skyU.mieCoefficient.value = 0.0012;
-    skyU.mieDirectionalG.value = 0.72;
-
-    // 2. 指数雾，营造空间层次感（高级氛围感核心）
-    this.app.scene.fog = new THREE.FogExp2(0x82a7d0, 0.006);
-    // 雾色和天空上层蓝色统一，不会割裂
-    this.app.scene.background = new THREE.Color(0x5088c8);
-  }
+  // private createSky() {
+  //   // 1. 物理大气天空主体
+  //   const sky = new Sky();
+  //   sky.scale.setScalar(1200); // 超大包裹范围，无穿模
+  //   this.app.scene.add(sky);
+  //
+  //   const skyU = sky.material.uniforms;
+  //   // 太阳光向量，和你的DirectionalLight位置完全同步，光影色调统一
+  //   const sunVector = new THREE.Vector3(20, 40, 15).normalize();
+  //   skyU.sunPosition.value.copy(sunVector);
+  //
+  //   // 高级写实参数（不发白、深邃蓝天，无白雾）
+  //   skyU.turbidity.value = 2.2; // 大气浑浊度，低=干净通透蓝天
+  //   skyU.rayleigh.value = 0.7; // 瑞利散射，控制蓝色浓度，数值低不会泛白
+  //   skyU.mieCoefficient.value = 0.0012;
+  //   skyU.mieDirectionalG.value = 0.72;
+  //
+  //   // 2. 指数雾，营造空间层次感（高级氛围感核心）
+  //   this.app.scene.fog = new THREE.FogExp2(0x82a7d0, 0.006);
+  //   // 雾色和天空上层蓝色统一，不会割裂
+  //   this.app.scene.background = new THREE.Color(0x5088c8);
+  // }
 
   // 每一帧执行的草丛风吹系统
   public grassWindSystem(w: IWorld) {

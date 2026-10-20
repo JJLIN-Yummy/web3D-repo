@@ -3,7 +3,6 @@
   "compilerOptions": {
     "baseUrl": ".",
     "moduleResolution": "Bundler",
-    "types": ["node", "vitest/globals"],
     "typeRoots": ["./node_modules/@types/", "./types"],
     "paths": {
       "@/*": ["./src/*"],

@@ -4,9 +4,10 @@ import {
   type responseType,
 } from "@common/request";
 import type { ThreeModelResponse, ThreeModelSubmitResponse } from "@/api/type";
+import { getEnv } from "@/utils/env";
 
 const { RequestFactoryWrapper } = httpClient({
-  apiUrl: "http://127.0.0.1:8001/api",
+  apiUrl: getEnv().agent_url,
 });
 
 export const threeGeneratorSubmit = RequestFactoryWrapper<
@@ -27,7 +28,7 @@ export const threeGeneratorSubmit = RequestFactoryWrapper<
 export const threeGeneratorQuery = RequestFactoryWrapper<
   requestType<{ task_id: string }, EmptyObj, EmptyObj>,
   responseType<ThreeModelResponse>
->({ id: 1 }).collectData(({ params }) => {
+>({ id: 2 }).collectData(({ params }) => {
   return {
     url: "/three/generate/result" + `/${params.task_id}`,
     method: "GET",

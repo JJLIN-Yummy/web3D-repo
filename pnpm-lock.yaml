@@ -40,8 +40,8 @@ importers:
         specifier: ^1.0.4
         version: 1.0.4
       '@build/vite-config':
-        specifier: ^1.0.2
-        version: 1.0.2(rolldown@1.2.11)(rollup@4.64.9)
+        specifier: ^1.0.3
+        version: 1.0.3(rolldown@1.2.11)(rollup@4.64.9)(vite@7.3.7(@types/node@25.9.9)(jiti@2.6.1)(lightningcss@1.33.0)(tsx@4.23.15)(yaml@2.9.1))
       '@changesets/cli':
         specifier: ^2.31.1
         version: 2.31.1(@types/node@25.9.9)
@@ -441,8 +441,10 @@ packages:
   '@build/tsconfig-config@1.0.4':
     resolution: {integrity: sha512-RjTwY8MFIXBVbw4p78GWayi6Amfh92I++syjQ6p0w9oM+QJCub3ZQP1jWQZQjqpY4fvFqWHtQzGMkQz3pB8Y6A==}
 
-  '@build/vite-config@1.0.2':
-    resolution: {integrity: sha512-MxVbDAkv4ZWj8YPKWICSqnB3HRKh7sx39Gq4a5hQoE+Jsr6Bxzp0vTC0oSnrgfGhsqLZQVKodicxILY7QybaXw==}
+  '@build/vite-config@1.0.3':
+    resolution: {integrity: sha512-jVLQ/dhGBcogy1WlPyu5dFcnHN3hSRQjZmyt70BoJB3P4BfufE/iHuz+HBtvwfo4VGu8SEuqxa2HMsYNughYgA==}
+    peerDependencies:
+      vite: ^7.0.0
 
   '@cacheable/memory@2.2.0':
     resolution: {integrity: sha512-CTLKqLItRCEixEAewD3/j9DB3/o96gpTPD4eJ1v+DGOlxZRZncRQkGYqqnAGCscYd6RNeXfGeiuCphsPtqyIfQ==}
@@ -5417,10 +5419,11 @@ snapshots:
 
   '@build/tsconfig-config@1.0.4': {}
 
-  '@build/vite-config@1.0.2(rolldown@1.2.11)(rollup@4.64.9)':
+  '@build/vite-config@1.0.3(rolldown@1.2.11)(rollup@4.64.9)(vite@7.3.7(@types/node@25.9.9)(jiti@2.6.1)(lightningcss@1.33.0)(tsx@4.23.15)(yaml@2.9.1))':
     dependencies:
       dotenv: 17.4.2
       rollup-plugin-visualizer: 6.0.11(rolldown@1.2.11)(rollup@4.64.9)
+      vite: 7.3.7(@types/node@25.9.9)(jiti@2.6.1)(lightningcss@1.33.0)(tsx@4.23.15)(yaml@2.9.1)
     transitivePeerDependencies:
       - rolldown
       - rollup

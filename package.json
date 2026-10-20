@@ -8,8 +8,6 @@
   "private": true,
   "scripts": {
     "husky:init": "pnpm exec husky install",
-    "dev": "pnpm dev -F ai-explore-app",
-    "build": "pnpm build -F ai-explore-app",
     "build:kit": "pnpm build -F three-kit",
     "lint:eslint:fix": "eslint . --fix",
     "lint:eslint": "eslint .",
@@ -23,7 +21,9 @@
     "build:ci-demo": "pnpm --filter ci-demo build",
     "dev:staticServer": "pnpm -F staticServer dev",
     "build:staticServer": "pnpm -F @web3d/static-server build",
-    "start:staticServer": "pnpm -F @web3d/static-server start"
+    "start:staticServer": "pnpm -F @web3d/static-server start",
+    "dev:ai-explore-app": "pnpm -F @web3d/ai-explore-app dev",
+    "build:ai-explore-app": "pnpm -F @web3d/ai-explore-app build"
   },
   "keywords": [],
   "author": "",
@@ -37,7 +37,7 @@
     "@build/prettier-config": "^1.0.2",
     "@build/stylelint-config": "^1.0.2",
     "@build/tsconfig-config": "^1.0.4",
-    "@build/vite-config": "^1.0.2",
+    "@build/vite-config": "^1.0.3",
     "@changesets/cli": "^2.31.1",
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",

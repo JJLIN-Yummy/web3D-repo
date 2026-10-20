@@ -108,11 +108,11 @@ class TextureDecoderWorker {
 export const textureDecoder = new TextureDecoderWorker();
 
 export async function loadTileTexture(url: string) {
-  let reqId: string;
+  // let reqId: string;
   try {
     // await拿到返回对象
     const { bitmap, requestId } = await textureDecoder.decodeTexture(url);
-    reqId = requestId;
+    // reqId = requestId;
 
     // 拿到bitmap，创建Three纹理
     const tileTex = new THREE.CanvasTexture(bitmap);
