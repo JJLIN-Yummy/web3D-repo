@@ -1,6 +1,5 @@
 pipeline {
     agent any
-    // 启用你截图配置好的 node20
     tools {
         nodejs 'node20'
     }
@@ -16,8 +15,8 @@ pipeline {
             steps {
                 sh """
                 corepack enable
-                pnpm install --filter @web3d/static-server...
-                pnpm -F @web3d/static-server build
+                pnpm install --filter @web3d/staticServer...
+                pnpm -F @web3d/staticServer build
                 """
             }
         }
@@ -31,7 +30,8 @@ pipeline {
         stage('停止旧容器') {
             steps {
                 sh """
-                docker stop static-server || true
+                # -t 30：SIGTERM最多等待30秒优雅关闭，超时强制kill
+                docker stop -t 30 static-server || true
                 docker rm static-server || true
                 """
             }
@@ -51,10 +51,35 @@ pipeline {
                 '''
             }
         }
+        stage('健康检查') {
+            steps {
+                sh '''
+                # 循环探测 /health，最多30秒等待启动
+                for i in {1..30}; do
+                  if curl -s http://127.0.0.1:3000/health | grep ok; then
+                    echo "✅ 服务健康检查通过"
+                    break
+                  fi
+                  echo "等待服务启动..."
+                  sleep 1
+                done
+                # 校验，失败直接流水线报错
+                curl -s http://127.0.0.1:3000/health | grep ok
+                '''
+            }
+        }
+        stage('清理悬空镜像') {
+            steps {
+                sh "docker image prune -f"
+            }
+        }
     }
     post {
         always {
             echo "流水线执行完毕"
+        }
+        failure {
+            echo "❌ 部署失败，请检查日志，旧容器已经停止，需要手动回滚镜像"
         }
     }
 }
