@@ -3,7 +3,7 @@ node_modules
 **/node_modules
 
 # tsup打包产物
-**/dist
+# **/dist
 
 # git
 .git
