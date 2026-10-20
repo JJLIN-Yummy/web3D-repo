@@ -80,7 +80,7 @@ export class ResourceQueue<T = any> extends TaskManager<
         task.status = resourceQueueStatusEnum.waiting;
         task.result = void 0;
         this.tasks[type].push(task);
-
+        // console.log(this.tasks[type])
         //触发钩子
         this.#emitter.emit(resourceQueueEventName.addTask);
       });
@@ -112,7 +112,9 @@ export class ResourceQueue<T = any> extends TaskManager<
           this.addResult(type, task);
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   public async execTask(type: string, task: resourceQueueTaskType<T>) {
@@ -145,7 +147,7 @@ export class ResourceQueue<T = any> extends TaskManager<
       // const resolvedList = statisticList['resolved'] ?? (statisticList['resolved'] = []);
       // resolvedList.push(task);
     } catch (e) {
-      console.log(e);
+      console.error(e);
       task.status = resourceQueueStatusEnum.rejected;
       task.result = void 0;
       task.filed && task.filed({ status: task.status, result: e as Error });
@@ -160,7 +162,6 @@ export class ResourceQueue<T = any> extends TaskManager<
 
         requestAnimationFrame(() => {
           if (this.tasksStatus[type] === resourceQueueStatusEnum.resolved) {
-            // console.log('真的完成')
             this.#emitter.emit(resourceQueueEventName.fulfilled, { type });
           }
         });

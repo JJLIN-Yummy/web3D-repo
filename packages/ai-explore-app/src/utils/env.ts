@@ -3,6 +3,7 @@ export const getEnv = () => {
 
   return {
     static_resource_url: env.VITE_STATIC_RESOURCE_URL,
+    agent_url: env.VITE_AGENT_URL,
   };
 };
 

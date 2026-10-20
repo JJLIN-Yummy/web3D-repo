@@ -18,7 +18,7 @@ export class TextureManager {
         const f = function* () {
           initTexture();
           yield;
-          resolve();
+          resolve(void 0);
         };
         await runTask(f());
       });

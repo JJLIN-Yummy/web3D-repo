@@ -1,0 +1,83 @@
+pipeline {
+    agent none
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        timeout(time: 20, unit: 'MINUTES')
+        disableConcurrentBuilds()
+    }
+    stages {
+        stage('安装依赖打包') {
+            agent { label 'master' }
+            tools {
+                nodejs 'node20'
+            }
+            steps {
+                sh '''
+                    curl -v http://127.0.0.1:4873
+                    export COREPACK_ENABLE_STRICT=0
+                    export COREPACK_ENABLE_AUTO_PIN=0
+                    export PNPM_FETCH_IGNORE_BUILDS=false
+                    export NODE_OPTIONS="--max-old-space-size=8192"
+                    corepack disable
+                    #npm config set registry https://registry.npmmirror.com
+                    # 如果想要pnpm不走verdaccio，取消下面这行注释
+                    # npx pnpm config set registry https://registry.npmmirror.com
+                    rm -rf node_modules
+                    rm -rf packages/ci-demo/dist
+                    rm -rf packages/ai-explore-app/dist
+                    npx pnpm config list
+                    npx pnpm install --filter @web3d/ai-explore-app --frozen-lockfile
+                    npx pnpm run build:ai-explore-app
+                '''
+            }
+            post {
+                success {
+                    stash includes: 'packages/ai-explore-app/dist/**', name: 'dist-artifact'
+                }
+            }
+        }
+        stage('人工确认上线') {
+            steps {
+                input message: "确认上传 packages/ai-explore-app/dist 到服务器 /web ？", ok: "确认上线"
+            }
+        }
+        stage('上传dist + 重载nginx') {
+            agent { label 'master' }
+            tools {
+                nodejs 'node20'
+            }
+            steps {
+                unstash 'dist-artifact'
+                sshPublisher(
+                    publishers: [
+                        sshPublisherDesc(
+                            configName: 'server-01',
+                            transfers: [
+                                sshTransfer(
+                                    sourceFiles: 'packages/ai-explore-app/dist/**',
+                                    remoteDirectory: '/web',
+                                    cleanRemote: true,
+                                    removePrefix: 'packages/ai-explore-app/dist'
+                                ),
+                                sshTransfer(
+                                    command: 'docker exec mynginx nginx -s reload'
+                                )
+                            ]
+                        )
+                    ]
+                )
+            }
+        }
+    }
+    post {
+        always {
+            echo "流水线执行结束"
+        }
+        success {
+            echo "✅ ci-demo部署完成！文件上传到 /web，mynginx 已重载。"
+        }
+        failure {
+            echo "❌ ci-demo流水线失败，查看日志"
+        }
+    }
+}

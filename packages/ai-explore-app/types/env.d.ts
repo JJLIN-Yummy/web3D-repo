@@ -6,6 +6,7 @@
  */
 interface ImportMetaEnv {
   readonly VITE_STATIC_RESOURCE_URL: string;
+  readonly VITE_AGENT_URL: string;
   // 后续新增 VITE_xxx 写在这里
 }
 

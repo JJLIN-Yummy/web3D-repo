@@ -13,7 +13,8 @@ export default [
       "**/dist/**",
       "eslint.config.js",
       "auto-imports.d.ts",
-      "components.d.ts",
+      "**/components.d.ts",
+      "types/**",
     ],
   },
   ...es,
@@ -62,6 +63,7 @@ export default [
       "@typescript-eslint/no-floating-promises": "off",
       "@typescript-eslint/unbound-method": "off",
       "no-unused-vars": "off",
+      "@typescript-eslint/require-await": "off",
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {

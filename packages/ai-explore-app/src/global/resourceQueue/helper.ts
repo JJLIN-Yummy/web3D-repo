@@ -21,11 +21,15 @@ export const taskRunHelper = (max: number) => {
               // runTask(f());
 
               (async () => {
-                const result = await cb();
-                r2(1);
-                r1(result);
-                t && clearTimeout(t);
-                t = null;
+                try {
+                  const result = await cb();
+                  r2(1);
+                  r1(result);
+                  t && clearTimeout(t);
+                  t = null;
+                } catch (e) {
+                  console.error(e);
+                }
               })();
             }, 1000);
           });
