@@ -11,10 +11,8 @@ pipeline {
             tools {
                 nodejs 'node20'
             }
-            // 【新增这里】注入环境变量
             environment {
-                // 语法：变量名 = credentials('凭据ID')
-                VITE_STATIC_RESOURCE_URL = credentials('VITE_STATIC_URL_CRED')
+                VITE_STATIC_RESOURCE_URL = credentials('VITE_STATIC_RESOURCE_URL')
             }
             steps {
                 sh '''
