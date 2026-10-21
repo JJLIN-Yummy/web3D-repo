@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { uuidv4 } from "@common/tools";
 
 // TextureDecoderWorker.ts
 class TextureDecoderWorker {
@@ -50,7 +51,7 @@ class TextureDecoderWorker {
     url: string
   ): Promise<{ bitmap: ImageBitmap; requestId: string }> {
     // 生成本次请求唯一ID
-    const requestId = crypto.randomUUID();
+    const requestId = uuidv4();
 
     // fetch获取图片二进制数据
     const res = await fetch(url);

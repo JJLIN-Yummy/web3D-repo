@@ -65,7 +65,7 @@ pipeline {
                                     removePrefix: 'packages/ai-explore-app/dist'
                                 ),
                                 sshTransfer(
-                                    command: 'docker exec mynginx nginx -s reload'
+                                    execCommand: 'docker exec mynginx nginx -s reload'
                                 )
                             ]
                         )
