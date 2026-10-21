@@ -2,7 +2,7 @@ pipeline {
     agent none
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
-        timeout(time: 20, unit: 'MINUTES')
+        timeout(time: 30, unit: 'MINUTES')
         disableConcurrentBuilds()
     }
     stages {
@@ -17,7 +17,9 @@ pipeline {
                     export COREPACK_ENABLE_STRICT=0
                     export COREPACK_ENABLE_AUTO_PIN=0
                     export PNPM_FETCH_IGNORE_BUILDS=false
-                    export NODE_OPTIONS="--max-old-space-size=1024"
+                    export NODE_OPTIONS="--max-old-space-size=1536"
+                    # 【关键2】Rolldown 底层是 Rust，限制它的并发线程数，防止瞬间吃爆内存
+                    export ROLLDOWN_THREADS=1
                     corepack disable
                     #npm config set registry https://registry.npmmirror.com
                     # 如果想要pnpm不走verdaccio，取消下面这行注释

@@ -51,7 +51,7 @@ export default defineConfig((option) => {
       },
       build: {
         chunkSizeWarningLimit: 500,
-
+        sourcemap: false,
         rollupOptions: {
           input: {
             main: path.resolve(pathMap.root, "index.html"),
