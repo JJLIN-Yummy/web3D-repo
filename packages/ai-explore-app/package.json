@@ -3,7 +3,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "type-check": "tsc --noEmit",
+    "build": "vite build",
     "lint:eslint": "eslint .",
     "lint:eslint:fix": "eslint . --fix",
     "cspell": "cspell lint **/*.{js,ts,tsx,vue} --no-must-find-files"
