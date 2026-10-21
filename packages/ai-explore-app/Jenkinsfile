@@ -17,7 +17,7 @@ pipeline {
                     export COREPACK_ENABLE_STRICT=0
                     export COREPACK_ENABLE_AUTO_PIN=0
                     export PNPM_FETCH_IGNORE_BUILDS=false
-                    export NODE_OPTIONS="--max-old-space-size=8192"
+                    export NODE_OPTIONS="--max-old-space-size=1024"
                     corepack disable
                     #npm config set registry https://registry.npmmirror.com
                     # 如果想要pnpm不走verdaccio，取消下面这行注释
