@@ -24,6 +24,7 @@ defineProps<{
 const _emit = defineEmits<{
   (e: "click"): void;
 }>();
+_emit;
 </script>
 
 <style scoped>

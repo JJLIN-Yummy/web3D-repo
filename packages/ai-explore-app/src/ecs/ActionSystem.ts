@@ -218,6 +218,14 @@ export class ActionSystem {
       Transform.scaleY[entityId] = scaleY;
       Transform.scaleZ[entityId] = scaleZ;
       markDirty(world, entityId, DIRTY_TRANSFORM);
+      this.app.tileManager.addObjectToTile({
+        eid: entityId,
+        worldPos: new THREE.Vector3(
+          Transform.x[entityId],
+          Transform.y[entityId],
+          Transform.z[entityId]
+        ),
+      });
     }
   }
 

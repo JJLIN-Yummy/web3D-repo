@@ -9,8 +9,8 @@
   "scripts": {
     "husky:init": "pnpm exec husky install",
     "build:kit": "pnpm build -F three-kit",
-    "lint:eslint:fix": "eslint . --fix",
-    "lint:eslint": "eslint .",
+    "lint:eslint:fix": "eslint . --fix --no-warn-ignored",
+    "lint:eslint": "eslint . --no-warn-ignored",
     "commit": "git-cz",
     "cspell": "cspell lint **/*.{js,ts,tsx,vue} --no-must-find-files",
     "changeset": "changeset",

@@ -1,29 +1,35 @@
 <template>
-  <div class="page">
-    <ThreeCanvas ref="canvas" />
-    <div class="chat">
-      <input
-        v-model="text"
-        @keyup.enter="send"
-        placeholder="输入指令：例如 在前方生成红色方块"
-      />
-    </div>
-    <div id="crosshair">+</div>
+  <div v-if="!show3d">
+    <Login @success="onLoginSuccess" @error="onLoginError"></Login>
   </div>
-  <div
-    class="loading-page fixed z-[999] w-[100vw] h-[100vh] top-0 bg-amber-300"
-    v-if="showLoadingPageRef"
-  >
-    <y-hv-absolute-center>
-      <y-progress
-        :value="resolvedCount"
-        :total="total"
-        @end="onProgressEnd"
-      ></y-progress>
-      <y-hv-absolute-center class="text-[12px]">
-        {{ resolvedCount }} / {{ total }}
-      </y-hv-absolute-center>
-    </y-hv-absolute-center>
+
+  <div>
+    <div class="page" v-if="show3d">
+      <ThreeCanvas ref="canvas" />
+      <div class="chat">
+        <input
+          v-model="text"
+          @keyup.enter="send"
+          placeholder="输入指令：例如 在前方生成红色方块"
+        />
+      </div>
+      <div id="crosshair">+</div>
+      <div
+        class="loading-page fixed z-[999] w-[100vw] h-[100vh] top-0 bg-amber-300"
+        v-if="showLoadingPageRef"
+      >
+        <y-hv-absolute-center>
+          <y-progress
+            :value="resolvedCount"
+            :total="total"
+            @end="onProgressEnd"
+          ></y-progress>
+          <y-hv-absolute-center class="text-[12px]">
+            {{ resolvedCount }} / {{ total }}
+          </y-hv-absolute-center>
+        </y-hv-absolute-center>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -34,6 +40,12 @@ import { resourceQueue, resourceQueueEventName } from "./global/resourceQueue";
 import { resourceQueueStatusEnum } from "@/global/resourceQueue/enum";
 import YHvAbsoluteCenter from "@/components/layout/center/y-hv-absolute-center.vue";
 import { resourceQueueName } from "@/enums";
+import Login from "@/view/Login.vue";
+import { getCanvasFingerprint, initWebMonitor } from "@/utils/errorReportUtil";
+import { getEnv } from "@/utils/env";
+import { useUser } from "@/store/modules/userStore";
+
+const userStore = useUser();
 
 const canvas = ref<InstanceType<typeof ThreeCanvas>>();
 const text = ref("");
@@ -41,7 +53,8 @@ let id = new Date().getTime() + "";
 
 const showLoadingPageRef = ref(true);
 
-console.log(import.meta.env);
+//是否显示3d
+const show3d = ref<boolean>(false);
 
 /**
  * 发送自然语言指令，请求后端AI解析为结构化Action
@@ -80,6 +93,25 @@ const onProgressEnd = () => {
   setTimeout(() => {
     showLoadingPageRef.value = false;
   }, 1000);
+};
+
+const onLoginSuccess = () => {
+  show3d.value = true;
+  (async () => {
+    const fingerprint = await getCanvasFingerprint();
+    initWebMonitor({
+      projectId: "ai-explore-app",
+      projectVersion: globalThis.__APP_VERSION__,
+      env: getEnv().env,
+      fingerprint,
+      fingerprintType: "web_canvas",
+      getUserIdentify: () => userStore.id,
+    });
+  })();
+};
+
+const onLoginError = () => {
+  show3d.value = false;
 };
 </script>
 

@@ -19,23 +19,6 @@ export default [
   },
   ...es,
   ...tseslint.configs.recommended,
-  {
-    files: ["**/*.vue"],
-    languageOptions: {
-      parser: vueParser,
-      parserOptions: {
-        parser: "@typescript-eslint/parser",
-        ecmaVersion: "latest",
-        sourceType: "module",
-      },
-    },
-    plugins: {
-      vue: pluginVue,
-    },
-    rules: {
-      ...pluginVue.configs["flat/recommended"].rules,
-    },
-  },
   // 子包内类型解析：只匹配当前子包src
   {
     files: ["src/**/*.{ts,tsx,mts,cts}", "types/**/*.{ts,tsx,mts,cts}"], // 子包内不用写 ./，默认当前packages/tools目录
@@ -48,7 +31,7 @@ export default [
   },
   // 子包规则块放最后，保证最高优先级覆盖上层所有规则
   {
-    files: ["src/**/*.{js,ts,tsx,mts,cts,vue}"],
+    files: ["src/**/*.{js,ts,tsx,mts,cts}"],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unsafe-assignment": "off",

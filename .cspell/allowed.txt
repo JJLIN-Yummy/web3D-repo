@@ -7,3 +7,4 @@ REREQUES
 iid
 TSTATE
 umi
+HMR

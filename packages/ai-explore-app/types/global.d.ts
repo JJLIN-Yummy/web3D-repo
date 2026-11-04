@@ -25,9 +25,12 @@ declare global {
 
   var showLoading: ReturnType<useLoadingType>["showLoading"];
   var hideLoading: ReturnType<useLoadingType>["hideLoading"];
+
   interface GlobalThis {
     showLoading: ReturnType<useLoadingType>["showLoading"];
     hideLoading: ReturnType<useLoadingType>["hideLoading"];
+    __APP_VERSION__: string;
+    __APP_NAME__: string;
   }
   // declare interface Window {
   //   // Global vue app instance

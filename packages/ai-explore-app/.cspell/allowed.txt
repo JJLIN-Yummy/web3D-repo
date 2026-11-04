@@ -31,3 +31,9 @@ KUBERNETS
 Reka
 creat
 mie
+SCREENLOCKED
+UA
+ua
+Edg
+vnd
+ktx

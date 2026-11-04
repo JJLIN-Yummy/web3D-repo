@@ -173,13 +173,15 @@ export class ECSWorld {
         const f = async function* () {
           for (let i = 0; i < eids.length; i++) {
             const eid = eids[i];
+            // console.log(eid)
             const mesh = getMesh(eid);
             // markDirty(this.world,eid,DIRTY_TRANSFORM);
 
             await new Promise((resolve) => {
-              setTimeout(() => {
+              const t = setTimeout(() => {
                 mesh && scene.add({ mesh });
                 resolve(1);
+                globalThis.clearTimeout(t);
               }, 100);
             });
 
@@ -243,7 +245,7 @@ export class ECSWorld {
       } else {
         // 几何体脏标记：重建形状
         if (isDirty(this.world, eid, DIRTY_GEOMETRY)) {
-          console.log("形状脏了");
+          // console.log("形状脏了");
           const geo = mesh.geometry;
           const needRebuild =
             (geo instanceof THREE.BoxGeometry &&
@@ -265,7 +267,7 @@ export class ECSWorld {
 
       // 变换脏标记：更新位置旋转缩放
       if (isDirty(this.world, eid, DIRTY_TRANSFORM)) {
-        console.log("位置脏了");
+        // console.log("位置脏了");
         mesh.position.set(Transform.x[eid], Transform.y[eid], Transform.z[eid]);
         mesh.rotation.set(
           Transform.rotX[eid],

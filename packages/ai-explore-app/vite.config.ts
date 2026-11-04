@@ -1,6 +1,7 @@
 /** @type {import('vite').UserConfig} */
 import { defineConfig, loadEnv, mergeConfig } from "vite";
 import baseConfig from "../../vite.config.base";
+import pkg from "./package.json";
 
 import path from "path";
 import { pathMap, wrapperEnv } from "../../build/utils";
@@ -22,6 +23,11 @@ export default defineConfig((option) => {
   return {
     ...mergeConfig(baseConfig(option), {
       base: VITE_PUBLIC_PATH,
+      define: {
+        // 注入全局常量
+        __APP_VERSION__: JSON.stringify(pkg.version),
+        __APP_NAME__: JSON.stringify(pkg.name),
+      },
       resolve: {
         alias: [
           {
