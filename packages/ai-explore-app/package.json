@@ -1,6 +1,7 @@
 {
   "name": "@web3d/ai-explore-app",
   "type": "module",
+  "version": "1.0.0",
   "scripts": {
     "dev": "vite",
     "type-check": "tsc --noEmit",

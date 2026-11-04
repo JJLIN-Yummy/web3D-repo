@@ -28,7 +28,7 @@ import { FunctionComponent } from "@/ecs/function/functionComponent";
 import { mousedownEntity } from "@/global/event/mousedown";
 import { resourceQueue, resourceQueueEventName } from "@/global/resourceQueue";
 import { resourceQueueName } from "@/enums";
-import { getEnv, getStaticResourceUrl } from "@/utils/env";
+import { getEnv } from "@/utils/env";
 import { getImageUrlByOss } from "@/utils/getImageUrl";
 
 const buyStore = useBuyStore();
@@ -38,7 +38,7 @@ getEnv();
 const container = ref<HTMLElement>();
 let app: ThreeApp | null = null;
 let world: typeof World | null = null;
-let actionSystem: typeof ActionSystem | null = null;
+let actionSystem: typeof ActionSystem = {};
 
 function fullDispose() {
   // 先清空ECS所有动态方块
@@ -54,7 +54,9 @@ function fullDispose() {
 //=========================events=====================
 const pointerLockComponent = new FunctionComponent({
   cb() {
-    container.value && container.value.requestPointerLock();
+    if (container.value) {
+      container.value.requestPointerLock();
+    }
   },
 });
 

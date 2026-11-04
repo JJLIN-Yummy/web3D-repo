@@ -2,7 +2,6 @@ import type { Request, Response } from "express";
 import express from "express";
 import OSS from "ali-oss";
 import dotenv from "dotenv";
-import type { responseType } from "@common/request";
 import cors from "cors";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -26,32 +25,37 @@ dotenv.config({
 const app = express();
 
 app.use(cors());
-// app.use('/public', express.static(path.join(__dirname, '../public'), {
-//     maxAge: '7d',
-//     setHeaders: (res, filePath) => {
-//         const ext = path.extname(filePath).toLowerCase()
-//         // console.log(filePath,path.extname(filePath))
-//         const mimeMap:{[k in string]: string} = {
-//             // 3D 模型
-//             '.glb': 'model/gltf-binary',
-//             '.gltf': 'model/gltf+json',
-//             // 环境贴图
-//             '.hdr': 'image/vnd.radiance',
-//             '.exr': 'image/x-exr',
-//             '.ktx2': 'image/ktx2',
-//             // 图片
-//             '.jpg': 'image/jpeg',
-//             '.jpeg': 'image/jpeg',
-//             '.png': 'image/png',
-//             '.webp': 'image/webp',
-//             '.svg': 'image/svg+xml',
-//         }
-//
-//         if (mimeMap[ext]) {
-//             res.setHeader('Content-Type', mimeMap[ext])
-//         }
-//     },
-// }))
+if (isDev) {
+  app.use(
+    "/public",
+    express.static(path.join(__dirname, "../public"), {
+      maxAge: "7d",
+      setHeaders: (res, filePath) => {
+        const ext = path.extname(filePath).toLowerCase();
+        // console.log(filePath,path.extname(filePath))
+        const mimeMap: { [k in string]: string } = {
+          // 3D 模型
+          ".glb": "model/gltf-binary",
+          ".gltf": "model/gltf+json",
+          // 环境贴图
+          ".hdr": "image/vnd.radiance",
+          ".exr": "image/x-exr",
+          ".ktx2": "image/ktx2",
+          // 图片
+          ".jpg": "image/jpeg",
+          ".jpeg": "image/jpeg",
+          ".png": "image/png",
+          ".webp": "image/webp",
+          ".svg": "image/svg+xml",
+        };
+
+        if (mimeMap[ext]) {
+          res.setHeader("Content-Type", mimeMap[ext]);
+        }
+      },
+    })
+  );
+}
 
 // 从环境变量读取配置，缺失时直接报错，避免运行时才发现
 const region = process.env.VITE_OSS_REGION;
@@ -94,7 +98,7 @@ app.get("/api/get-model-url", (req: Request, res: Response) => {
     return res.json({
       IsSuccess: true,
       Value: {
-        url,
+        url: isDev ? `http://127.0.0.1:${port}${name}` : url,
       },
       Message: "ok",
     });
@@ -118,7 +122,7 @@ app.get("/health", (_req: Request, res: Response) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  // console.log(`Server is running on http://localhost:${port}`);
 });
 
 // import express from "express";

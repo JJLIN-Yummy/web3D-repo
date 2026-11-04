@@ -542,7 +542,7 @@ export class World {
     return { mesh: logoMesh };
   }
 
-  public composePedestal_LOGO(option: {
+  public async composePedestal_LOGO(option: {
     pedestal: THREE.Group;
     logo: THREE.Mesh;
     position?: Partial<{ x: number; y: number; z: number }>;
@@ -587,6 +587,8 @@ export class World {
     addComponent(this.app.ecs.world, PickableTag, eid);
     this.app.objToEntity.set(hitBox, eid);
     markDirty(this.app.ecs.world, eid, DIRTY_TRANSFORM);
+
+    await this.app.shaderManager.warmup({ mesh: hitBox });
 
     const { x: t_x, y: t_y, z: t_z } = option.position ?? {};
     Transform.x[eid] = t_x ?? 0;

@@ -4,6 +4,8 @@ export const getEnv = () => {
   return {
     static_resource_url: env.VITE_STATIC_RESOURCE_URL,
     agent_url: env.VITE_AGENT_URL,
+    front_monitor_url: env.VITE_FRONT_MONITOR_URL,
+    env: env.VITE_ENV,
   };
 };
 

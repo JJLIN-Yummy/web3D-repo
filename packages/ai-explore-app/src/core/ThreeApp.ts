@@ -31,6 +31,7 @@ import { SceneQueue } from "@/global/sceneQueue";
 import { DistanceObjectManager } from "@/core/DistanceObjectManager";
 import { TextureManager } from "@/core/textureManager";
 import { ShaderManager } from "@/core/shaderManger";
+import { ResponseField } from "@/enums";
 
 type EntityId = number;
 
@@ -113,6 +114,7 @@ export class ThreeApp {
     this.renderer.outputColorSpace = SRGBColorSpace;
     this.renderer.toneMapping = ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = exposure;
+    this.renderer.debug.checkShaderErrors = false;
 
     this.textureManager = new TextureManager({ renderer: this.renderer });
     this.shaderManager = new ShaderManager({
@@ -308,11 +310,11 @@ export class ThreeApp {
               params: { task_id },
             }).response();
 
-            if (!queryRes || !queryRes.IsSuccess) {
+            if (!queryRes || !queryRes[ResponseField.ISSUCCESS]) {
               console.error("系统错误");
               return;
             }
-            const queryValue = queryRes.Value;
+            const queryValue = queryRes[ResponseField.VALUE];
             if (!queryValue) {
               console.error("响应错误");
               reject();
@@ -332,6 +334,12 @@ export class ThreeApp {
             objData = queryValue.data as ThreeModelResponseSuccess;
             if (timer) clearInterval(timer);
             timer = null;
+
+            if (!queryValue.data) {
+              console.error("生成失败");
+              reject();
+              return;
+            }
 
             resolve(1);
           })();
@@ -362,6 +370,7 @@ export class ThreeApp {
         });
       }
     } catch (err) {
+      alert("ai生成失败");
       console.error("AI生成失败", err);
     }
   }

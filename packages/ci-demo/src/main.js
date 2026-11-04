@@ -4,7 +4,7 @@ import javascriptLogo from "./assets/javascript.svg";
 import viteLogo from "./assets/vite.svg";
 import { setupCounter } from "./counter.js";
 
-console.log("阴天之后总有续命的晴空。孤独娱乐");
+// console.log("阴天之后总有续命的晴空。孤独娱乐");
 
 document.querySelector("#app").innerHTML = `
 <section id="center">
@@ -15,7 +15,7 @@ document.querySelector("#app").innerHTML = `
   </div>
   <div>
     <h1>Get started</h1>
-    <p>Edit <code>src/main.js</code> and save to test <code>HMR</code></p>
+    <p>Edit <code>src/main.js</code> and save to test <code>a</code></p>
   </div>
   <button id="counter" type="button" class="counter"></button>
 </section>

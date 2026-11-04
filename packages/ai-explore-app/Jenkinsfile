@@ -13,6 +13,9 @@ pipeline {
             }
             environment {
                 VITE_STATIC_RESOURCE_URL = credentials('VITE_STATIC_RESOURCE_URL')
+                VITE_FRONT_MONITOR_URL = credentials('VITE_FRONT_MONITOR_URL')
+                VITE_AGENT_URL = credentials('VITE_AGENT_URL')
+                VITE_EVN = 'prod'
             }
             steps {
                 sh '''

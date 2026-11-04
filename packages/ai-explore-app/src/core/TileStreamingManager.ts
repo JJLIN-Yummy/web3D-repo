@@ -180,6 +180,7 @@ export class TileManager {
     }
     // 获取瓦片实例
     const tile = this.tileMap.get(tileKey)!;
+    tile.state = TileState.IDLE;
 
     // 将实体ID存入瓦片列表
     tile.objectEidList.push(item.eid);

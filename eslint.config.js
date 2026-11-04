@@ -1,5 +1,7 @@
 import es from "@build/eslint-config";
 import tseslint from "typescript-eslint";
+import vueParser from "vue-eslint-parser";
+import pluginVue from "eslint-plugin-vue";
 
 export default [
   {
@@ -11,10 +13,47 @@ export default [
       "./build/**",
       "**/*.config.js",
       "**/*.config.ts",
+      "eslint.config.js",
+      "**/dist/**",
+      "**/eslint.config.js",
+      "**/auto-imports.d.ts",
+      "**/components.d.ts",
+      "**/types/**",
     ],
   },
   ...es,
   ...tseslint.configs.recommended,
+  {
+    files: ["**/*.vue"],
+    languageOptions: {
+      parser: vueParser,
+      parserOptions: {
+        parser: "@typescript-eslint/parser",
+        ecmaVersion: "latest",
+        sourceType: "module",
+      },
+    },
+    plugins: {
+      vue: pluginVue,
+    },
+    rules: {
+      ...pluginVue.configs["flat/recommended"].rules,
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/prefer-promise-reject-errors": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+      "@typescript-eslint/no-unsafe-enum-comparison": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/no-redundant-type-constituents": "off",
+      "@typescript-eslint/no-floating-promises": "off",
+      "@typescript-eslint/unbound-method": "off",
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+    },
+  },
 
   {
     files: [
