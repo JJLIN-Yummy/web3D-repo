@@ -92,8 +92,8 @@ async function handleLogin() {
 
   try {
     const res = await userStore.login({
-      userPhone: "19120595267",
-      userPassword: "123456",
+      userPhone: phone.value,
+      userPassword: password.value,
     });
     if (!res) {
       alert("登录失败");

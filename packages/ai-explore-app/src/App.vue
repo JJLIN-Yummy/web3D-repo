@@ -10,7 +10,7 @@
         <input
           v-model="text"
           @keyup.enter="send"
-          placeholder="输入指令：例如 在前方生成红色方块"
+          placeholder="生成沙发/桌子/椅子/风扇。由于资金问题只能生成这四个。"
         />
       </div>
       <div id="crosshair">+</div>
@@ -27,6 +27,9 @@
           <y-hv-absolute-center class="text-[12px]">
             {{ resolvedCount }} / {{ total }}
           </y-hv-absolute-center>
+        </y-hv-absolute-center>
+        <y-hv-absolute-center style="margin-top: 20px" class="text-[12px]">
+          <div>连按Space飞行模型。Shift上升，Ctrl下降。连按W加速模式。</div>
         </y-hv-absolute-center>
       </div>
     </div>
