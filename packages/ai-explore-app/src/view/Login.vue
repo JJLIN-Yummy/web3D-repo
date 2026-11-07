@@ -1,5 +1,54 @@
 <template>
   <div class="login-wrap">
+    <div
+      style="
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        max-width: 420px;
+        padding: 14px 18px;
+        background: rgb(255 255 255 / 88%);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgb(64 156 255 / 25%);
+        border-radius: 10px;
+        color: #27272a;
+        font-size: 13px;
+        line-height: 1.7;
+        z-index: 999;
+      "
+    >
+      <div style="font-weight: 600; color: #2563eb; margin-bottom: 8px">
+        📌 项目说明
+      </div>
+      <div>本项目侧重前端基建能力展示，业务逻辑较少</div>
+      <div style="margin: 6px 0 10px; color: #52525b">
+        内置：Tile瓦片流式加载、ECS系统、请求库（超时、重试、缓存、取消））、Worker线程、任务调度器、性能优化
+      </div>
+      <div style="margin: 6px 0 10px; color: #52525b">
+        后端&运维：滑动窗口限流、Nginx反向代理、完整CI/CD流水线
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <a
+          href="https://github.com/JJLIN-Yummy/web3D-repo"
+          target="_blank"
+          style="color: #2563eb; text-decoration: none"
+          >🔗 源码：web3D-repo</a
+        >
+        <a
+          href="https://github.com/JJLIN-Yummy/common-repo"
+          target="_blank"
+          style="color: #2563eb; text-decoration: none"
+          >🔗 基建库：common-repo</a
+        >
+        <a
+          href="https://github.com/JJLIN-Yummy/front-monitor"
+          target="_blank"
+          style="color: #2563eb; text-decoration: none"
+          >🔗 后端：front-monitor</a
+        >
+      </div>
+    </div>
+
     <div class="login-box">
       <h2 class="login-title">登录</h2>
       <form
