@@ -208,7 +208,7 @@ export class World {
       finished: ({ result }) => {
         pedestal = result;
 
-        arr.slice(0, 14).forEach((item) => {
+        arr.slice(0, 2).forEach((item) => {
           // const createLOGOComponent = this.createLOGOComponent.bind(this,{url: item.url});
           // const composeFunc = this.composePedestal_LOGO.bind(this, {pedestal:pedestal.clone(),logo:logo.mesh,position:item.composeOption.position,rotate:item.composeOption.rotate})
           const taskFunc = async () => {
