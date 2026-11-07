@@ -22,7 +22,10 @@
       </div>
       <div>本项目侧重前端基建能力展示，业务逻辑较少</div>
       <div style="margin: 6px 0 10px; color: #52525b">
-        内置：Tile瓦片流式加载、ECS系统、请求库（超时、重试、缓存、取消））、Worker线程、任务调度器
+        内置：Tile瓦片流式加载、ECS系统、请求库（超时、重试、缓存、取消））、Worker线程、任务调度器、性能优化
+      </div>
+      <div style="margin: 6px 0 10px; color: #52525b">
+        后端&运维：滑动窗口限流、Nginx反向代理、完整CI/CD流水线
       </div>
       <div style="display: flex; flex-direction: column; gap: 4px">
         <a
